@@ -14,6 +14,13 @@ export default function Web3Auth() {
     setMounted(true);
   }, []);
 
+  // Reset state when disconnected
+  useEffect(() => {
+    if (!isConnected) {
+      setIsMenuOpen(false);
+    }
+  }, [isConnected]);
+
   if (!mounted) {
     return null;
   }
@@ -28,6 +35,17 @@ export default function Web3Auth() {
       await navigator.clipboard.writeText(address);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+      setIsMenuOpen(false);
+      // Force a page reload to clear any cached states
+      window.location.reload();
+    } catch (error) {
+      console.error('Error disconnecting:', error);
     }
   };
 
@@ -72,10 +90,7 @@ export default function Web3Auth() {
             </div>
           </div>
           <button
-            onClick={() => {
-              disconnect();
-              setIsMenuOpen(false);
-            }}
+            onClick={handleDisconnect}
             className="w-full px-4 py-2 text-sm text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors"
           >
             Disconnect
